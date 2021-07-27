@@ -21,7 +21,7 @@ NMAP_FILE="$NMAP_DIR/default.nmap"
 echo -e "[+] Creating ${LIGHT_GREEN}$NMAP_DIR${NO_COLOR} if it doesn't exist..."
 mkdir -p $NMAP_DIR
 echo "[+] Running fast nmap scan to discover open ports (this may take a while)..."
-ports=$(nmap -p 80,139,443,445,3306 --min-rate=1000 -Pn -T4 $MACHINE_IP | grep '^[0-9]' | cut -d '/' -f 1)
+ports=$(nmap -p- --min-rate=1000 -Pn -T4 $MACHINE_IP | grep '^[0-9]' | cut -d '/' -f 1)
 
 comma_separated_ports_list=$(echo $ports | tr '\n' ',' | sed s/,$//)
 echo -e "[+] Discovered ports: ${LIGHT_GREEN}$comma_separated_ports_list${NO_COLOR}. Saving to ${LIGHT_GREEN}$PORTS_FILE${NO_COLOR}"
