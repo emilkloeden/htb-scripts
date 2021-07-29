@@ -8,6 +8,16 @@ LIGHT_GREEN='\033[1;32m'
 NO_COLOR='\033[0m'
 
 # Create variables for directory and file paths
+if [ -z "$HTB_DIR" ]; then
+  echo "HTB_DIR environment variable not set. Exiting..."
+  exit 1
+fi
+
+if [ $# -ne 2 ]; then
+  echo "USAGE: w.sh <machine_name> <machine_ip>"
+  exit 2
+fi
+
 WINDOWS_DIR="$HTB_DIR/windows"
 # LINUX_DIR="$HTB_DIR/linux"
 MACHINE_IP=$2
@@ -23,15 +33,16 @@ BUST_DIR="$MACHINE_DIR/bust"
 echo -e "[+] Creating ${LIGHT_GREEN}$NMAP_DIR${NO_COLOR} (if it doesn't exist)..."
 mkdir -p $NMAP_DIR
 echo "[+] Running fast nmap scan to discover open ports (this may take a while)..."
-ports=$(nmap -p- --min-rate=1000 -Pn -T4 $MACHINE_IP | grep '^[0-9]' | cut -d '/' -f 1)
+ports=$(nmap -p- --min-rate=10000 -Pn -T4 $MACHINE_IP | grep '^[0-9]' | cut -d '/' -f 1)
 
 comma_separated_ports_list=$(echo $ports | tr ' ' ',' | sed s/,$//)
 echo -e "[+] Discovered ports: ${LIGHT_GREEN}$comma_separated_ports_list${NO_COLOR}. Saving to ${LIGHT_GREEN}$PORTS_FILE${NO_COLOR}."
+touch $PORTS_FILE
 printf "%s $ports\n" > $PORTS_FILE
 
 # Run a complete nmap scan
 echo -e "[+] Running default nmap scripts and version scan. Saving output to ${LIGHT_GREEN}$NMAP_FILE${NO_COLOR}."
-# nmap -v -p $comma_separated_ports_list -Pn -sC -sV $MACHINE_IP -oA $NMAP_FILE
+nmap -v -p $comma_separated_ports_list -Pn -sC -sV $MACHINE_IP -oA $NMAP_FILE
 
 if grep -q "80" $PORTS_FILE; then
     echo -e "[+] Probing port 80..."
