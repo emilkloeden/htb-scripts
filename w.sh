@@ -6,6 +6,7 @@
 # Make things pretty
 LIGHT_GREEN='\033[1;32m'
 NO_COLOR='\033[0m'
+USAGE_STR="USAGE: w.sh linux|windows <machine_name> <machine_ip>"
 
 # Create variables for directory and file paths
 if [ -z "$HTB_DIR" ]; then
@@ -13,21 +14,37 @@ if [ -z "$HTB_DIR" ]; then
   exit 1
 fi
 
-if [ $# -ne 2 ]; then
-  echo "USAGE: w.sh <machine_name> <machine_ip>"
+if [ $# -ne 3 ]; then
+  echo "$USAGE_STR"
   exit 2
 fi
 
 WINDOWS_DIR="$HTB_DIR/windows"
-# LINUX_DIR="$HTB_DIR/linux"
-MACHINE_IP=$2
-MACHINE_NAME=$1
-MACHINE_DIR="$WINDOWS_DIR/$MACHINE_NAME"
+LINUX_DIR="$HTB_DIR/linux"
+
+if [ $1 == "windows" ]; then
+  OS_DIR="$WINDOWS_DIR"
+elif [ $1 == "linux" ]; then
+  OS_DIR="$LINUX_DIR"
+else
+  echo "$USAGE_STR"
+  exit 3
+fi
+
+MACHINE_NAME=$2
+MACHINE_IP=$3
+
+MACHINE_DIR="$OS_DIR/$MACHINE_NAME"
 NMAP_DIR="$MACHINE_DIR/nmap"
 PORTS_FILE="$MACHINE_DIR/ports"
 NMAP_FILE="$NMAP_DIR/default"
 MACHINE_WWW_DIR="$MACHINE_DIR/machine_www"
 BUST_DIR="$MACHINE_DIR/bust"
+WWW_DIR="$MACHINE_DIR/www"
+
+# Make www dir to house exploits etc.
+echo -e "[+] Creating ${LIGHT_GREEN}$WWW_DIR${NO_COLOR}."
+mkdir -p $WWW_DIR
 
 # Get open/filtered ports
 echo -e "[+] Creating ${LIGHT_GREEN}$NMAP_DIR${NO_COLOR} (if it doesn't exist)..."
